@@ -277,11 +277,11 @@
     border-radius: 8px;
   }
 
-  /* Contenedor de la cámara - AHORA ES SECUNDARIO */
+  /* Contenedor de la cámara - AHORA ES SECUNDARIO Y MÁS PEQUEÑO */
   .camera-container {
     position: relative;
     width: 100%;
-    max-width: 300px;
+    max-width: 200px; /* REDUCIDO de 300px a 200px */
     margin: 15px 0;
     border-radius: 20px;
     overflow: hidden;
@@ -420,9 +420,9 @@
     
     <!-- Información de la emoción detectada -->
     <div class="emotion-display">
-      <div class="emotion-text" id="emotionText">Coloca un color en el círculo</div>
+      <div class="emotion-text" id="emotionText">Coloca un color en el círculo</div> 
       <div class="emotion-phrase" id="emotionPhrase"></div>
-    </div> 
+    </div>
     
     <!-- La cámara ahora es secundaria y más pequeña -->
     <div class="camera-container">
@@ -437,11 +437,7 @@
   </div>
 
 <script>
-// -------- CONFIGURACIÓN -------- //
-const ESP32_IP = "http://192.168.1.50"; // Cambia por la IP de tu ESP32
-const ESP32_PATH = "/emocion";
-
-//  Emociones y frases adaptadas a niños
+// Emociones y frases adaptadas a niños
 // NOTA: La clave 'face' debe coincidir con la clase CSS para la carita
 const COLOR_WORD_MAP = {
   red: { 
@@ -499,8 +495,6 @@ const COLOR_WORD_MAP = {
     color: '#f7a8b8' 
   }
 };
-
-const COLOR_CODE_MAP = { red:1, green:2, blue:3, yellow:4, white:5, black:6, orange:7, purple:8, pink:9 };
 
 // Rango de detección en HSV (Mantenemos los rangos originales)
 const HSV_RANGES = {
@@ -600,7 +594,7 @@ function speakPhrase(text){
   window.speechSynthesis.speak(utter);
 }
 
-// -------- CÁMARA y ENVÍO -------- //
+// -------- CÁMARA -------- //
 async function startCamera(){
   try{
     // Para móviles, usamos la cámara trasera si está disponible
@@ -650,18 +644,6 @@ function stopCamera(){
     stream=null; 
   }
   if(rafId) cancelAnimationFrame(rafId);
-}
-
-async function sendToESP32(color){
-  const code = COLOR_CODE_MAP[color];
-  if(!code) return;
-  const url = `${ESP32_IP}${ESP32_PATH}?valor=${code}`;
-  try{ 
-    await fetch(url); 
-    console.log(`Enviado a ESP32: ${url}`); 
-  } catch(err){ 
-    console.error('Error al enviar al ESP32:', err); 
-  }
 }
 
 // -------- LOOP PRINCIPAL -------- //
@@ -721,9 +703,8 @@ function loop(){
       emotionText.textContent = emo.word;
       emotionPhrase.textContent = emo.phrase;
       
-      // 4. Habla y envía a ESP32
+      // 4. Habla la frase
       speakPhrase(emo.phrase);
-      sendToESP32(detected.color);
     } 
     
     // Si no se detecta color, vuelve a un estado neutral
@@ -732,7 +713,6 @@ function loop(){
       animatedFace.className = 'face calm';
       emotionText.textContent = 'Coloca un color en el círculo';
       emotionPhrase.textContent = '';
-      sendToESP32('blue');
     }
 
     rafId = requestAnimationFrame(frame);
@@ -751,6 +731,3 @@ document.addEventListener('touchstart', function() {
 </script>
 </body>
 </html>
-
-
-
