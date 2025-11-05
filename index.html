@@ -606,7 +606,7 @@ async function startCamera(){
     // Para móviles, usamos la cámara trasera si está disponible
     const constraints = {
       video: {
-        facingMode: 'environment', // Preferir cámara trasera
+        facingMode: 'user', // Preferir cámara trasera
         width: { ideal: 640 },
         height: { ideal: 480 }
       }
@@ -751,3 +751,4 @@ document.addEventListener('touchstart', function() {
 </script>
 </body>
 </html>
+
