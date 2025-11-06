@@ -54,7 +54,7 @@
   .face {
     width: 250px;
     height: 300px;
-    background-color: #499cc2; /* Azul celeste */
+    background-color: #499cc2; /* Azul celeste por defecto */
     border-radius: 40% 40% 20% 20%;
     position: relative;
     box-shadow: 
@@ -62,6 +62,39 @@
       inset 0 -5px 15px rgba(255,255,255,0.6),
       inset 0 5px 15px rgba(0,0,0,0.1);
     transition: all 0.4s ease;
+  }
+
+  /* Colores de emociones para la cara */
+  .face.happy {
+    background-color: #fff475; /* Amarillo para Alegría */
+  }
+
+  .face.sad {
+    background-color: #a7c7e7; /* Azul para Tristeza */
+  }
+
+  .face.fear {
+    background-color: #cba0ff; /* Morado para Miedo */
+  }
+
+  .face.angry {
+    background-color: #f28b82; /* Rojo para Enojo */
+  }
+
+  .face.calm {
+    background-color: #81c995; /* Verde para Calma */
+  }
+
+  .face.love {
+    background-color: #f7a8b8; /* Rosa para Amor */
+  }
+
+  .face.frustrated {
+    background-color: #f9ab5e; /* Naranja para Frustración */
+  }
+
+  .face.excited {
+    background-color: #c0c0c0; /* Plateado para Entusiasmo */
   }
 
   /* Ojos */
@@ -792,7 +825,7 @@ function loop(){
           animatedFace.classList.remove('changing');
         }, 800);
         
-        // 3. Actualiza la carita animada
+        // 3. Actualiza la carita animada con el color correspondiente
         animatedFace.className = 'face';
         animatedFace.classList.add(emo.face);
         
