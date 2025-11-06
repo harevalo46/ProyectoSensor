@@ -297,6 +297,16 @@
     transition: opacity 0.1s ease;
   }
 
+  /* Indicador de que está hablando */
+  .face.speaking .mouth {
+    animation: speak 0.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes speak {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(1.2); }
+  }
+
   /* Contenedor de la cámara - AHORA ES SECUNDARIO Y MÁS PEQUEÑO */
   .camera-container {
     position: relative;
@@ -334,6 +344,12 @@
     border: 3px dashed #5a8fd6;
     border-radius: 50%;
     pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  .detection-circle.disabled {
+    border-color: #cccccc;
+    opacity: 0.5;
   }
 
   /* Información de emociones */
@@ -414,7 +430,7 @@
 </style>
 </head>
 <body>
-  <h1> LUMIBOT </h1>
+  <h1>Detector de Emociones</h1>
   
   <div class="main-container">
     <!-- LA CARITA ES AHORA EL PROTAGONISTA -->
@@ -448,7 +464,7 @@
     <div class="camera-container">
       <video id="video" autoplay playsinline muted></video>
       <canvas id="overlayCanvas"></canvas>
-      <div class="detection-circle"></div>
+      <div class="detection-circle" id="detectionCircle"></div>
     </div>
     
     <div class="instructions">
@@ -527,12 +543,14 @@ let overlay = document.getElementById('overlayCanvas');
 let emotionText = document.getElementById('emotionText');
 let emotionPhrase = document.getElementById('emotionPhrase');
 let animatedFace = document.getElementById('animatedFace');
+let detectionCircle = document.getElementById('detectionCircle');
 let stream = null;
 let rafId = null;
 let lastDetected = null;
 let speaking = false;
 let blinkInterval = null;
 let isBlinking = false;
+let detectionEnabled = true;
 
 // -------- FUNCIONES AUXILIARES -------- //
 function rgbToHsv(r,g,b){
@@ -608,6 +626,17 @@ function stopBlinking() {
   animatedFace.classList.remove('blinking');
 }
 
+// -------- CONTROL DE DETECCIÓN -------- //
+function enableDetection() {
+  detectionEnabled = true;
+  detectionCircle.classList.remove('disabled');
+}
+
+function disableDetection() {
+  detectionEnabled = false;
+  detectionCircle.classList.add('disabled');
+}
+
 // -------- VOZ INFANTIL -------- //
 function getFriendlyVoice() {
   const voices = window.speechSynthesis.getVoices();
@@ -622,14 +651,37 @@ function getFriendlyVoice() {
 
 function speakPhrase(text){
   if(!text || speaking) return;
-  speaking=true;
+  
+  // Deshabilitar detección mientras habla
+  disableDetection();
+  speaking = true;
+  
+  // Añadir animación de habla
+  animatedFace.classList.add('speaking');
+  
   const utter = new SpeechSynthesisUtterance(text);
   utter.voice = getFriendlyVoice();
   utter.lang = 'es-ES';
   utter.pitch = 1.6;
   utter.rate = 1.15;
   utter.volume = 1.0;
-  utter.onend = ()=>{ speaking=false; };
+  
+  utter.onend = ()=>{
+    speaking = false;
+    // Quitar animación de habla
+    animatedFace.classList.remove('speaking');
+    // Habilitar detección nuevamente
+    enableDetection();
+  };
+  
+  utter.onerror = ()=>{
+    speaking = false;
+    // Quitar animación de habla
+    animatedFace.classList.remove('speaking');
+    // Habilitar detección nuevamente
+    enableDetection();
+  };
+  
   window.speechSynthesis.speak(utter);
 }
 
@@ -720,52 +772,55 @@ function loop(){
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     ctx.lineWidth = 4;
-    ctx.strokeStyle = detected.color ? COLOR_WORD_MAP[detected.color].color : '#5a8fd6';
+    ctx.strokeStyle = detected.color && detectionEnabled ? COLOR_WORD_MAP[detected.color].color : '#5a8fd6';
     ctx.stroke();
 
-    // Lógica para cambiar la carita animada y el texto
-    if(detected.color && detected.color !== lastDetected){
-      // Cambio de emoción detectado
-      lastDetected = detected.color;
-      const emo = COLOR_WORD_MAP[detected.color];
+    // Solo procesar detección si está habilitada y no está hablando
+    if (detectionEnabled && !speaking) {
+      // Lógica para cambiar la carita animada y el texto
+      if(detected.color && detected.color !== lastDetected){
+        // Cambio de emoción detectado
+        lastDetected = detected.color;
+        const emo = COLOR_WORD_MAP[detected.color];
+        
+        // 1. Detener el parpadeo
+        stopBlinking();
+        
+        // 2. Añadir efecto de cambio
+        animatedFace.classList.add('changing');
+        setTimeout(() => {
+          animatedFace.classList.remove('changing');
+        }, 800);
+        
+        // 3. Actualiza la carita animada
+        animatedFace.className = 'face';
+        animatedFace.classList.add(emo.face);
+        
+        // 4. Actualiza el texto
+        emotionText.textContent = emo.word;
+        emotionPhrase.textContent = emo.phrase;
+        
+        // 5. Habla la frase
+        speakPhrase(emo.phrase);
+      } 
       
-      // 1. Detener el parpadeo
-      stopBlinking();
-      
-      // 2. Añadir efecto de cambio
-      animatedFace.classList.add('changing');
-      setTimeout(() => {
-        animatedFace.classList.remove('changing');
-      }, 800);
-      
-      // 3. Actualiza la carita animada
-      animatedFace.className = 'face';
-      animatedFace.classList.add(emo.face);
-      
-      // 4. Actualiza el texto
-      emotionText.textContent = emo.word;
-      emotionPhrase.textContent = emo.phrase;
-      
-      // 5. Habla la frase
-      speakPhrase(emo.phrase);
-    } 
-    
-    // Si no se detecta color, vuelve a un estado neutral y empieza a parpadear
-    if (!detected.color) {
-      if (lastDetected !== 'calm') {
-        lastDetected = 'calm';
-        animatedFace.className = 'face calm';
-        emotionText.textContent = 'Coloca un color en el círculo';
-        emotionPhrase.textContent = '';
+      // Si no se detecta color, vuelve a un estado neutral y empieza a parpadear
+      if (!detected.color) {
+        if (lastDetected !== 'calm') {
+          lastDetected = 'calm';
+          animatedFace.className = 'face calm';
+          emotionText.textContent = 'Coloca un color en el círculo';
+          emotionPhrase.textContent = '';
+        }
+        
+        // Iniciar parpadeo si no está activo
+        if (!isBlinking) {
+          startBlinking();
+        }
+      } else {
+        // Si se detecta color, detener el parpadeo
+        stopBlinking();
       }
-      
-      // Iniciar parpadeo si no está activo
-      if (!isBlinking) {
-        startBlinking();
-      }
-    } else {
-      // Si se detecta color, detener el parpadeo
-      stopBlinking();
     }
 
     rafId = requestAnimationFrame(frame);
