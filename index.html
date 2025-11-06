@@ -75,6 +75,7 @@
     border: 3px solid #333;
     overflow: hidden;
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
   }
 
   .eye.left {
@@ -253,28 +254,47 @@
     display: none;
   }
 
-  /* Curiosidad */
-  .face.curious .eyebrow {
-    top: 50px;
+  /* Miedo */
+  .face.fear .eye {
+    transform: scale(1.1);
   }
 
-  .face.curious .pupil {
-    transform: translateX(7px);
+  .face.fear .pupil {
+    transform: scale(0.7);
   }
 
-  .face.curious .pupil.right {
-    transform: translateX(-7px);
-  }
-
-  /* Paz */
-  .face.peace .eye {
-    transform: scale(0.8);
-  }
-
-  .face.peace .mouth {
-    height: 8px;
+  .face.fear .mouth {
+    height: 20px;
     width: 60px;
-    border-radius: 8px;
+    border-radius: 50%;
+  }
+
+  /* Frustración */
+  .face.frustrated .eyebrow {
+    top: 65px;
+    transform: rotate(10deg);
+  }
+
+  .face.frustrated .eyebrow.left {
+    transform: rotate(-10deg);
+  }
+
+  .face.frustrated .mouth {
+    height: 25px;
+    width: 70px;
+    border-radius: 15px;
+  }
+
+  /* Parpadeo de ojos */
+  .face.blinking .eye {
+    height: 10px;
+    border-radius: 5px;
+    transition: all 0.1s ease;
+  }
+
+  .face.blinking .pupil {
+    opacity: 0;
+    transition: opacity 0.1s ease;
   }
 
   /* Contenedor de la cámara - AHORA ES SECUNDARIO Y MÁS PEQUEÑO */
@@ -440,73 +460,66 @@
 // Emociones y frases adaptadas a niños
 // NOTA: La clave 'face' debe coincidir con la clase CSS para la carita
 const COLOR_WORD_MAP = {
+  yellow: { 
+    word: 'Alegría',     
+    phrase: 'Cuando sonríes, haces que todo a tu alrededor brille. ¡Tu alegría se contagia como un rayo de sol!', 
+    face: 'happy', 
+    color: '#fff475' 
+  },
+  blue: { 
+    word: 'Tristeza',   
+    phrase: 'A veces nos sentimos tristes, y eso también está bien. Las lágrimas ayudan a limpiar el corazón para volver a sonreír.', 
+    face: 'sad', 
+    color: '#a7c7e7' 
+  },
+  purple: { 
+    word: 'Miedo',     
+    phrase: 'Sentir miedo no te hace débil, te recuerda que estás aprendiendo algo nuevo. ¡Da un paso valiente y verás que puedes!', 
+    face: 'fear', 
+    color: '#cba0ff' 
+  },
   red: { 
-    word: 'Enojo',     
-    phrase: 'Parece que estás bravo. Respira un poquito y verás que todo se calma.', 
+    word: 'Enojo',   
+    phrase: 'Cuando te enojas, respira profundo y cuenta hasta tres. Así el enojo se transforma en calma y puedes pensar mejor.', 
     face: 'angry', 
     color: '#f28b82' 
   },
   green: { 
-    word: 'Alegría',   
-    phrase: '¡Qué chévere verte tan feliz! Me gusta cuando sonríes así.', 
-    face: 'happy', 
+    word: 'Calma',       
+    phrase: 'Estar en calma te ayuda a pensar, sentirte bien y tomar buenas decisiones. ¡Tu corazón puede ser tan tranquilo como un lago!', 
+    face: 'calm', 
     color: '#81c995' 
   },
-  blue: { 
-    word: 'Calma',     
-    phrase: 'Te ves muy tranquilo, eso está súper bien.', 
-    face: 'calm', 
-    color: '#a7c7e7' 
-  },
-  yellow: { 
-    word: 'Energía',   
-    phrase: 'Tienes muchísima energía hoy, ¡qué bueno! Usa esa fuerza para divertirte y aprender.', 
-    face: 'excited', 
-    color: '#fff475' 
-  },
-  white: { 
-    word: 'Paz',       
-    phrase: 'Te noto muy en paz, eso se siente bonito, ¿cierto?', 
-    face: 'peace', 
-    color: '#ffffff' 
-  },
-  black: { 
-    word: 'Tristeza',  
-    phrase: 'A veces nos sentimos tristes, y está bien. Todo se arregla poquito a poquito.', 
-    face: 'sad', 
-    color: '#a9a9a9' 
-  },
-  orange: { 
-    word: 'Entusiasmo',
-    phrase: '¡Qué emoción la tuya! Me encanta ver esas ganas que tienes.', 
-    face: 'excited', 
-    color: '#f9ab5e' 
-  },
-  purple: { 
-    word: 'Misterio',  
-    phrase: 'Te veo curioso hoy, seguro estás pensando en algo interesante.', 
-    face: 'curious', 
-    color: '#cba0ff' 
-  },
   pink: { 
-    word: 'Cariño',    
-    phrase: 'Se nota que tienes mucho cariño, eso hace que todo se vea más bonito.', 
+    word: 'Amor',  
+    phrase: 'Cuando das amor, compartes un pedacito de tu corazón. ¡Cada gesto amable hace el mundo más bonito!', 
     face: 'love', 
     color: '#f7a8b8' 
+  },
+  orange: { 
+    word: 'Frustración',
+    phrase: 'Equivocarse no significa que no puedas hacerlo. ¡Cada intento te enseña y te acerca a lograrlo!', 
+    face: 'frustrated', 
+    color: '#f9ab5e' 
+  },
+  silver: { 
+    word: 'Entusiasmo',  
+    phrase: 'Cuando algo te emociona, es porque estás listo para aprender y disfrutar. ¡Aprovecha esa energía para dar lo mejor de ti!', 
+    face: 'excited', 
+    color: '#c0c0c0' 
   }
 };
 
-// Rango de detección en HSV (Mantenemos los rangos originales)
+// Rango de detección en HSV (Actualizados para las nuevas emociones)
 const HSV_RANGES = {
+  yellow: [ [[20,100,100],[35,255,255]] ],
+  blue: [ [[90,50,40],[140,255,255]] ],
+  purple: [ [[130,50,50],[160,255,255]] ],
   red: [ [[0,100,50],[10,255,255]], [[160,100,50],[179,255,255]] ],
   green: [ [[35,60,40],[85,255,255]] ],
-  blue: [ [[90,50,40],[140,255,255]] ],
-  yellow: [ [[20,100,100],[35,255,255]] ],
-  white: [ [[0,0,200],[179,40,255]] ],
-  black: [ [[0,0,0],[179,255,50]] ],
+  pink: [ [[160,30,50],[170,255,255]] ],
   orange: [ [[10,100,100],[25,255,255]] ],
-  purple: [ [[130,50,50],[160,255,255]] ],
-  pink: [ [[160,30,50],[170,255,255]] ]
+  silver: [ [[0,0,150],[179,30,220]] ] // Rango para plateado
 };
 
 let video = document.getElementById('video');
@@ -518,6 +531,8 @@ let stream = null;
 let rafId = null;
 let lastDetected = null;
 let speaking = false;
+let blinkInterval = null;
+let isBlinking = false;
 
 // -------- FUNCIONES AUXILIARES -------- //
 function rgbToHsv(r,g,b){
@@ -567,6 +582,30 @@ function detectColor(imageData, box){
     if(r>ratio){ ratio=r; best=c; }
   }
   return ratio>=0.25 ? {color:best, ratio} : {color:null, ratio};
+}
+
+// -------- PARPADEO DE OJOS -------- //
+function startBlinking() {
+  if (isBlinking) return;
+  
+  isBlinking = true;
+  blinkInterval = setInterval(() => {
+    // Añadir clase de parpadeo
+    animatedFace.classList.add('blinking');
+    
+    // Quitar clase de parpadeo después de un tiempo corto
+    setTimeout(() => {
+      animatedFace.classList.remove('blinking');
+    }, 100);
+  }, 3000); // Parpadea cada 3 segundos
+}
+
+function stopBlinking() {
+  if (!isBlinking) return;
+  
+  isBlinking = false;
+  clearInterval(blinkInterval);
+  animatedFace.classList.remove('blinking');
 }
 
 // -------- VOZ INFANTIL -------- //
@@ -644,6 +683,7 @@ function stopCamera(){
     stream=null; 
   }
   if(rafId) cancelAnimationFrame(rafId);
+  if(blinkInterval) clearInterval(blinkInterval);
 }
 
 // -------- LOOP PRINCIPAL -------- //
@@ -689,30 +729,43 @@ function loop(){
       lastDetected = detected.color;
       const emo = COLOR_WORD_MAP[detected.color];
       
-      // 1. Añadir efecto de cambio
+      // 1. Detener el parpadeo
+      stopBlinking();
+      
+      // 2. Añadir efecto de cambio
       animatedFace.classList.add('changing');
       setTimeout(() => {
         animatedFace.classList.remove('changing');
       }, 800);
       
-      // 2. Actualiza la carita animada
+      // 3. Actualiza la carita animada
       animatedFace.className = 'face';
       animatedFace.classList.add(emo.face);
       
-      // 3. Actualiza el texto
+      // 4. Actualiza el texto
       emotionText.textContent = emo.word;
       emotionPhrase.textContent = emo.phrase;
       
-      // 4. Habla la frase
+      // 5. Habla la frase
       speakPhrase(emo.phrase);
     } 
     
-    // Si no se detecta color, vuelve a un estado neutral
-    if (!detected.color && lastDetected !== 'calm') {
-      lastDetected = 'calm';
-      animatedFace.className = 'face calm';
-      emotionText.textContent = 'Coloca un color en el círculo';
-      emotionPhrase.textContent = '';
+    // Si no se detecta color, vuelve a un estado neutral y empieza a parpadear
+    if (!detected.color) {
+      if (lastDetected !== 'calm') {
+        lastDetected = 'calm';
+        animatedFace.className = 'face calm';
+        emotionText.textContent = 'Coloca un color en el círculo';
+        emotionPhrase.textContent = '';
+      }
+      
+      // Iniciar parpadeo si no está activo
+      if (!isBlinking) {
+        startBlinking();
+      }
+    } else {
+      // Si se detecta color, detener el parpadeo
+      stopBlinking();
     }
 
     rafId = requestAnimationFrame(frame);
@@ -731,4 +784,3 @@ document.addEventListener('touchstart', function() {
 </script>
 </body>
 </html>
-
