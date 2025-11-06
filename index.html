@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detector de Emociones</title>
+<title>LUMIBOT</title>
 <style>
   * {
     box-sizing: border-box;
@@ -141,7 +141,7 @@
     left: 5px;
   }
 
-  /* Cejas */
+  /* Cejas - MEJORA PARA ENOJO: posición en V CORREGIDA */
   .eyebrow {
     width: 60px;
     height: 10px;
@@ -210,6 +210,57 @@
     left: 20px;
   }
 
+  /* Lágrimas más grandes para tristeza */
+  .tear {
+    position: absolute;
+    width: 12px; /* Aumentado de 8px a 12px */
+    height: 25px; /* Aumentado de 15px a 25px */
+    background: linear-gradient(to bottom, #a7c7e7 0%, #5a8fd6 100%);
+    border-radius: 0 0 8px 8px; /* Bordes más redondeados */
+    opacity: 0;
+    transition: all 0.5s ease;
+    z-index: 5;
+    box-shadow: 0 2px 5px rgba(90, 143, 214, 0.3); /* Sombra para dar profundidad */
+  }
+
+  .tear.left {
+    left: 63px; /* Ajustada posición */
+    top: 165px; /* Ajustada posición */
+  }
+
+  .tear.right {
+    right: 63px; /* Ajustada posición */
+    top: 165px; /* Ajustada posición */
+  }
+
+  .face.sad .tear {
+    opacity: 0.9; /* Más opaco */
+    animation: tearDrop 2.5s ease-in-out infinite; /* Animación más lenta */
+  }
+
+  .face.sad .tear.left {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes tearDrop {
+    0% {
+      transform: translateY(0) scaleY(1);
+      opacity: 0.9;
+    }
+    40% {
+      transform: translateY(20px) scaleY(0.9);
+      opacity: 0.8;
+    }
+    70% {
+      transform: translateY(40px) scaleY(0.7);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateY(60px) scaleY(0.4); /* Caída más larga */
+      opacity: 0;
+    }
+  }
+
   /* Estados de emociones */
   
   /* Alegría */
@@ -238,20 +289,48 @@
     transform: rotate(-15deg);
   }
 
-  /* Enojo */
+  /* Enojo - MEJORADO: cejas en V CORREGIDAS Y CENTRADAS */
   .face.angry .eyebrow {
-    top: 55px;
-    transform: rotate(-20deg);
+    top: 70px;
+    width: 75px; /* Longitud adecuada */
+    height: 12px; /* Más gruesas */
+    background-color: #222; /* Color más oscuro */
+    border-radius: 5px;
+  }
+
+  .face.angry .eyebrow.left {
+    left: 35px; /* Posición corregida */
+    transform: rotate(25deg); /* Inclinación en V */
+    transform-origin: right center; /* Punto de rotación correcto */
   }
 
   .face.angry .eyebrow.right {
-    transform: rotate(20deg);
+    right: 35px; /* Posición corregida */
+    transform: rotate(-25deg); /* Inclinación en V */
+    transform-origin: left center; /* Punto de rotación correcto */
   }
 
   .face.angry .mouth {
-    height: 30px;
-    width: 85px;
+    height: 25px;
+    width: 90px;
     border-radius: 15px;
+    bottom: 65px;
+    transform: scaleY(0.8);
+  }
+
+  .face.angry .mouth-inner {
+    background-color: #ff5252; /* Rojo más intenso */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  }
+
+  .face.angry .eye {
+    border-color: #333;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
+  }
+
+  .face.angry .pupil {
+    transform: scale(0.9);
+    background-color: #222;
   }
 
   /* Calma */
@@ -261,14 +340,21 @@
     border-radius: 15px;
   }
 
-  /* Energía/Entusiasmo */
+  /* Energía/Entusiasmo - MEJORADO */
   .face.excited .mouth {
-    height: 75px;
-    width: 110px;
+    height: 60px; /* Reducido de 75px a 60px */
+    width: 100px; /* Reducido de 110px a 100px */
+    bottom: 80px; /* Subido un poco más */
+    left: 75px;
+    border-radius: 0 0 50px 50px;
   }
 
   .face.excited .pupil {
     transform: scale(0.8);
+  }
+
+  .face.excited .eyebrow {
+    top: 50px; /* Cejas más arriba para más expresión */
   }
 
   /* Amor/Cariño */
@@ -441,6 +527,41 @@
       height: 340px;
     }
     
+    .tear {
+      width: 14px; /* Aún más grandes en pantallas grandes */
+      height: 28px;
+    }
+    
+    .tear.left {
+      left: 68px;
+      top: 175px;
+    }
+    
+    .tear.right {
+      right: 68px;
+      top: 175px;
+    }
+    
+    /* Ajustes para entusiasmo en pantallas grandes */
+    .face.excited .mouth {
+      height: 65px;
+      width: 110px;
+      bottom: 85px;
+    }
+    
+    /* Ajustes para enojo en pantallas grandes */
+    .face.angry .eyebrow {
+      width: 85px; /* Cejas aún más largas en pantallas grandes */
+    }
+    
+    .face.angry .eyebrow.left {
+      left: 30px;
+    }
+    
+    .face.angry .eyebrow.right {
+      right: 30px;
+    }
+    
     h1 {
       font-size: 2.2em;
     }
@@ -463,7 +584,7 @@
 </style>
 </head>
 <body>
-  <h1>Detector de Emociones</h1>
+  <h1>LUMIBOT</h1>
   
   <div class="main-container">
     <!-- LA CARITA ES AHORA EL PROTAGONISTA -->
@@ -484,6 +605,9 @@
             <div class="tongue"></div>
           </div>
         </div>
+        <!-- Lágrimas más grandes (ocultas por defecto) -->
+        <div class="tear left"></div>
+        <div class="tear right"></div>
       </div>
     </div>
     
